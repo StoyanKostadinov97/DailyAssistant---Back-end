@@ -2,9 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const BudgetItem = require('./db/model/budget-item');
 const { mongoose } = require('./db/mongoose');
+const BudgetItem = require('./db/model/budget-item');
+const ShoppingItem = require('./db/model/shop-item');
 const User = require('./db/model/user-model');
+const CalendarTask = require('./db/model/calendar-task');
 const jwt = require('./jwt');
 const auth = require('./auth');
 
@@ -28,16 +30,47 @@ app.use(cookieParser());
 
 
 
-app.get('/api/hello', function (req, res) {
-  res.send({ message: 'Hello World is new' });
-
-})
 app.get('/', function (req, res) {
-  res.send("Hello from home")
+  res.send("Hello from server")
 })
 
 /**
+ * 
+ * Calendar
+ * 
+ */
+  
+app.post('/api/task', auth, function (req, res, next) {
+  const title = req.body.title;
+  const from = req.body.from;
+  const to = req.body.to;
+  const date = req.body.date;
+  const description=req.body.description;
+  const _userId = req.user._id;
+
+
+  return CalendarTask
+    .create({ title, from, to, date, description, _userId })
+    .catch(e => {
+      console.log(e);
+    });
+});
+
+app.get('/api/task', auth,function (req, res, next) {
+  const _userId = req.user._id;
+  CalendarTask.find({ _userId }).then((items) => {
+    res.send(items);
+  })
+    .catch(e => {
+      console.log(e);
+    })
+
+});
+
+/**
+ * 
  * Budgeting GET & POST & DELETE
+ * 
  */
 
 app.get('/api/budgets', auth, function (req, res, next) {
@@ -77,19 +110,42 @@ app.delete('/api/budgets/:id', function (req, res) {
     .catch(e => {
       console.log(e);
     })
-})
+});
 
+/**
+ *
+ * Shopping Items  
+ *
+ */
+
+app.get('/api/shopping', auth, function (req, res, next) {
+  const _userId = req.user._id;
+  ShoppingItem.find({_userId }).then((items) => {
+    res.send(items);
+  })
+    .catch(e => {
+      console.log(e);
+    })
+
+});
+
+app.post('/api/shopping', auth, function (req, res, next) {
+  const productName = req.body.productName;
+  const isDone = req.body.isDone;
+  const _userId = req.user._id;
+
+
+  return ShoppingItem
+    .create({ productName, isDone, _userId })
+    .catch(e => {
+      console.log(e);
+    });
+});
 
 /**
  * User login & register
  */
 
-//Only for testing
-app.get('/api/user', function (req, res, next) {
-  User.find({}).then((result) => {
-    res.send(result);
-  });
-})
 
 app.post('/api/register', function (req, res, next) {
 
@@ -106,6 +162,7 @@ app.post('/api/register', function (req, res, next) {
 
       return User
         .create({ username, email, password })
+        .then(()=>res.status(200))
         .catch((e) => console.log(e))
     })
 
@@ -151,6 +208,39 @@ app.get('/api/logout', function (req, res, next) {
     .clearCookie("x-token")
     .send({ message: 'Logged out' });
 })
+
+
+
+/**
+ * 
+ * Only for testing
+ * 
+ */
+
+ 
+//Only for testing
+app.get('/api/user', function (req, res, next) {
+  User.find({}).then((result) => {
+    res.send(result);
+  });
+})
+//For delete 
+app.get('/api/userDel', function (req, res, next) {
+  User.deleteMany({}).then((result) => {
+    console.log(res);
+    // res.send(result);
+  });
+})
+//Only for testing
+app.get('/api/taskDel', function (req, res, next) {
+  CalendarTask.deleteMany({}).then((result) => {
+    // console.log(res);
+    res.status(200);
+    // res.send(result);
+  });
+})
+
+
 app.listen(3000, () => {
   console.log('Listenning on port 3000')
 });
