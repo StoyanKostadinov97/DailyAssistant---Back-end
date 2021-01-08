@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const CalendarTaskSchema = new mongoose.Schema({
-            
+
     _userId: {
         type: mongoose.Types.ObjectId,
         required: true
@@ -19,11 +19,11 @@ const CalendarTaskSchema = new mongoose.Schema({
         required: true
     },
     to: {
-        type:String,
-        required:true
+        type: String,
+        required: true
     },
     description: {
-        type:String,
+        type: String,
         // required:true
     }
 
@@ -31,4 +31,4 @@ const CalendarTaskSchema = new mongoose.Schema({
 
 const CalendarTask = mongoose.model('CalendarTask', CalendarTaskSchema);
 
-module.exports =  CalendarTask ;
+module.exports = CalendarTask;

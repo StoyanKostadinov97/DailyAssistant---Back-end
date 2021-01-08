@@ -65,6 +65,21 @@ app.get('/api/task', auth, function (req, res, next) {
 
 });
 
+app.patch('/api/task/:id', auth, function (req, res, next) {
+  const id=req.params.id;
+  CalendarTask
+    .findById({ _id: id })
+    .then(finded=>{
+      finded.title=req.body.title;
+      finded.date=req.body.date;
+      finded.from=req.body.from;
+      finded.to=req.body.to;
+      finded.save()
+      res.status(200);
+    })
+    .catch(e=>console.log(e));
+})
+
 
 
 
@@ -163,18 +178,18 @@ app.delete('/api/links/:id', function (req, res) {
     })
 });
 
-app.patch('/api/links/:id',auth,function(req,res,next){
-  const id=req.params.id;
+app.patch('/api/links/:id', auth, function (req, res, next) {
+  const id = req.params.id;
   LinkItem
-  .findById({_id:id})
-  .then((finded)=>{
-    finded.views++;
-    console.log(finded);
-    finded.save();
-  })
-  .catch((e)=>{
-    console.log(e);
-  })
+    .findById({ _id: id })
+    .then((finded) => {
+      finded.views++;
+      console.log(finded);
+      finded.save();
+    })
+    .catch((e) => {
+      console.log(e);
+    })
 });
 
 
